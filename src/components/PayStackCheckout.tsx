@@ -1,6 +1,7 @@
 import { PaystackButton } from "react-paystack";
 import { useNavigate } from "react-router";
 import { supabase } from "../utils/supabase";
+import { useEffect } from "react";
 
 interface PaystackT {
   email: string;
@@ -9,11 +10,11 @@ interface PaystackT {
 
 const PayStackCheckout = ({ email, amount }: PaystackT) => {
   const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-  const amountInKobo = amount * 100; // Convert to kobo
+  const ammount = amount;
   const navigate = useNavigate();
 
   const saveTransaction = async (reference: any) => {
-    const { error } = await supabase.from("orders").insert({
+    const { error } = await supabase.from("Orders").insert({
       email,
       amount,
       reference,
@@ -27,7 +28,7 @@ const PayStackCheckout = ({ email, amount }: PaystackT) => {
   const onSuccess = (response: any) => {
     console.log("Payment Successful:", response);
     saveTransaction(response.reference);
-    navigate("/order-success");
+    navigate("/success");
   };
 
   const onClose = () => {
@@ -37,12 +38,15 @@ const PayStackCheckout = ({ email, amount }: PaystackT) => {
 
   const componentProps = {
     email,
-    amount: amountInKobo,
+    amount: ammount,
+    currency: "GHS",
     publicKey,
     text: "Pay Now",
     onSuccess,
     onClose,
   };
+
+  useEffect(() => {}, []);
 
   return (
     <div className="paystack-button">

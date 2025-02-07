@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router";
 // import "./App.css";
-import Home from "./pages/Home";
 import AuthLayout from "./pages/auth/AuthLayout";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ProtectedRoute from "./pages/ProtectedRoute";
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -20,9 +20,9 @@ function App() {
           }
         />
 
-        <Route path="auth" element={<AuthLayout />}>
+        {/* <Route path="auth" element={<AuthLayout />}>
           <Route path="login" element={<Login />} />
-        </Route>
+        </Route> */}
       </Routes>
     </>
   );
