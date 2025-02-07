@@ -1,38 +1,20 @@
-import { loadPaystack } from "@paystack/checkout-js";
+import { useEffect } from "react";
 
-interface PaystackCheckoutProps {
-  email: string; // Customer email
-  amount: number; // Total amount in kobo (multiply by 100)
-  reference: string; // Unique transaction reference
-  onSuccess?: (reference: string) => void; // Callback on successful payment
-  onClose?: () => void; // Callback on payment window close
-}
+const usePaystackScript = () => {
+  useEffect(() => {
+    const scriptId = "paystack-script";
+    if (document.getElementById(scriptId)) return; // Prevent duplicate script loading
 
-export const payWithPaystack = async ({
-  email,
-  amount,
-  reference,
-  onSuccess,
-  onClose,
-}: PaystackCheckoutProps) => {
-  try {
-    const checkout = await loadPaystack({
-      key: import.meta.env.VITE_PAYSTACK_SECRET_KEY, // Public Key from .env
-      email,
-      amount, // Convert to kobo
-      currency: "GHS", // Change to your currency (e.g., "NGN", "USD")
-      reference, // Unique transaction reference
-      label: "Complete Your Purchase",
-      onSuccess: () => {
-        if (onSuccess) onSuccess(reference);
-      },
-      onClose: () => {
-        if (onClose) onClose();
-      },
-    });
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = "https://js.paystack.co/v1/inline.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-    checkout.openIframe(); // Opens the Paystack checkout modal
-  } catch (error) {
-    console.error("Paystack Checkout Error:", error);
-  }
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 };
+
+export default usePaystackScript;

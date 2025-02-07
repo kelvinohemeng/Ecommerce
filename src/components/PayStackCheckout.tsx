@@ -1,56 +1,59 @@
-import { PaystackButton } from "react-paystack";
-import { useNavigate } from "react-router";
-import { supabase } from "../utils/supabase";
-import { useEffect } from "react";
+// components/Checkout.tsx
+import { useCartStore } from "../stores/store";
+import { useState } from "react";
 
-interface PaystackT {
-  email: string;
-  amount: number;
-}
+const PayStackCheckout = ({ amount }: { amount: number }) => {
+  const { items } = useCartStore();
+  const [email, setEmail] = useState("");
 
-const PayStackCheckout = ({ email, amount }: PaystackT) => {
-  const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-  const ammount = amount;
-  const navigate = useNavigate();
+  const handlePayment = async () => {
+    if (!email) {
+      alert("Please enter your email address.");
+      return;
+    }
 
-  const saveTransaction = async (reference: any) => {
-    const { error } = await supabase.from("Orders").insert({
-      email,
-      amount,
-      reference,
-      status: "success",
-      created_at: new Date(),
-    });
+    const response = await fetch(
+      "https://api.paystack.co/transaction/initialize",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_PAYSTACK_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          amount: amount, // Paystack expects amount in kobo
+        }),
+      }
+    );
 
-    if (error) console.error("Error saving transaction:", error);
+    const data = await response.json();
+    if (data.status) {
+      window.location.href = data.data.authorization_url; // Redirect to Paystack payment page
+    } else {
+      alert("Failed to initialize payment. Please try again.");
+    }
   };
-
-  const onSuccess = (response: any) => {
-    console.log("Payment Successful:", response);
-    saveTransaction(response.reference);
-    navigate("/success");
-  };
-
-  const onClose = () => {
-    console.log("Payment closed");
-    navigate("/cart");
-  };
-
-  const componentProps = {
-    email,
-    amount: ammount,
-    currency: "GHS",
-    publicKey,
-    text: "Pay Now",
-    onSuccess,
-    onClose,
-  };
-
-  useEffect(() => {}, []);
 
   return (
-    <div className="paystack-button">
-      <PaystackButton {...componentProps} />
+    <div>
+      <h2>Checkout</h2>
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>
+            {item.name} - ${(item.price / 100).toFixed(2)} x {item.quantity}
+          </li>
+        ))}
+      </ul>
+      <p>Total: ${(amount / 100).toFixed(2)}</p>
+      <input
+        name="email"
+        type="email"
+        placeholder="Enter your email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <button onClick={handlePayment}>Proceed to Payment</button>
     </div>
   );
 };
