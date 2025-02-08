@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchProducts, supabase } from "../utils/supabase";
-import { useCartStore } from "../stores/store";
+import { useCartStore, useProductStore } from "../stores/store";
 import { PaystactProduct, Product } from "../types/types";
 
 import { PaystackButton, usePaystackPayment } from "react-paystack";
@@ -9,35 +9,24 @@ import ProductCard from "../components/ProductCard";
 import Cart from "../components/Cart";
 
 const Home = () => {
-  const [products, setProducts] = useState<PaystactProduct[]>([]);
+  const { products, fetchProducts } = useProductStore();
+
   const { addItem, clearCart, items, removeItem } = useCartStore();
 
-  const fetchPaystackProducts = async () => {
-    const response = await fetch("https://api.paystack.co/product", {
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_PAYSTACK_SECRET_KEY}`,
-      },
-    });
-    const data = await response.json();
-    return data.data; // Array of products
-  };
-
+  // {PAYSTACT API FETCH ALL PRODUCTS}
+  // const fetchPaystackProducts = async () => {
+  //   const response = await fetch("https://api.paystack.co/product", {
+  //     headers: {
+  //       Authorization: `Bearer ${import.meta.env.VITE_PAYSTACK_SECRET_KEY}`,
+  //     },
+  //   });
+  //   const data = await response.json();
+  //   return data.data; // Array of products
+  // };
   useEffect(() => {
-    const getProducts = async () => {
-      const data = await fetchProducts();
-    };
-
-    getProducts();
-
-    const getPaystactProd = async () => {
-      const prodData = await fetchPaystackProducts();
-      setProducts(prodData);
-      console.log(prodData);
-    };
-    getPaystactProd();
+    fetchProducts();
     console.log(products);
-  }, [items, setProducts]);
-
+  }, [items]);
   return (
     <div className=" bg-red-300 text-bold">
       <Cart />

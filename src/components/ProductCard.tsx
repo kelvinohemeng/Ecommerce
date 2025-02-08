@@ -3,7 +3,7 @@ import { PaystactProduct, Product } from "../types/types";
 import { navigator } from "../utils";
 
 type ProdcutCardT = {
-  product: PaystactProduct;
+  product: Product;
 };
 const ProductCard = ({ product }: ProdcutCardT) => {
   const { addItem } = useCartStore();
@@ -11,23 +11,16 @@ const ProductCard = ({ product }: ProdcutCardT) => {
   const handleAddToCart = () => {
     addItem(product);
   };
-  const handleBuy = () => {
-    window.location.href = `https://paystack.com/buy/${product.slug}`;
-  };
-
   return (
     <div className="product-card">
-      <img
+      {/* <img
         className="max-w-[250px]"
         src={product.files[0].path}
         alt={product.files[0].original_filename}
-      />
-      <h3>{product.name}</h3>
-      <p>
-        {product.currency} {(product.price / 100).toFixed(2)}
-      </p>
+      /> */}
+      <h3>{product.product_name}</h3>
+      <p>GHC {product.product_price.toFixed(2)}</p>
       <button onClick={handleAddToCart}>Add to Cart</button>
-      <button onClick={handleBuy}>Buy</button>
     </div>
   );
 };

@@ -6,6 +6,7 @@ export interface Product {
   product_price: number;
   product_type: string;
   stock: number;
+  quantity: number;
 }
 export interface PaystactProduct {
   id: string | number;
@@ -15,26 +16,27 @@ export interface PaystactProduct {
   price: number;
   type: string;
   stock: number;
-  files: PaystackFile[],
-  slug:string,
-  quantity:number,
-  currency:string
+  files: PaystackFile[];
+  slug: string;
+  quantity: number;
+  currency: string;
 }
 
 export interface PaystackFile {
-  original_filename:string,
-  key:string,
-  path:string
+  original_filename: string;
+  key: string;
+  path: string;
 }
 
 export interface CartState {
-  items: PaystactProduct[];
-  addItem: (product: PaystactProduct) => void;
-  removeItem: (productId: string|number) => void;
+  items: Product[];
+  addItem: (product: Product) => void;
+  removeItem: (productId: string | number) => void;
   clearCart: () => void;
+  updateQuantity: (productId: string | number, newQuantity: number) => void;
   totalPrice: () => number;
 }
 export interface ProductState {
-  products: PaystactProduct[];
+  products: Product[];
   fetchProducts: () => Promise<void>;
 }
