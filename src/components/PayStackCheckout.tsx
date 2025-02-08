@@ -47,34 +47,22 @@ const PayStackCheckout = ({ amount }: { amount: number }) => {
     amount: 0.1 * 100,
   };
 
-  const initializePayment = usePaystackPayment(paystackConfig);
+  // const initializePayment = usePaystackPayment(paystackConfig);
 
-  const onSuccess = async (response: callback) => {
-    // Save order to Supabase
+  const handlePaystackSuccessAction = async (reference: callback) => {
+    console.log(reference);
     try {
-      // Log the response to see if we are getting the expected data
-      console.log("Payment Success Response:", response);
-
       // Save order to Supabase
+
       const { data, error } = await supabase.from("Orders").insert([
         {
-          id: 4465,
-          items: [
-            {
-              product_name: "Product 1",
-              product_price: 20.0,
-              quantity: 2,
-            },
-            {
-              product_name: "Product 2",
-              product_price: 15.0,
-              quantity: 1,
-            },
-          ],
+          items: items,
           total: amount,
-          status: "paid",
+          //@ts-ignore
+          status: reference.message,
           created_at: new Date().toISOString(), // Use ISO string format for date
-          payment_ref: "paystack_payment_ref_12345",
+          //@ts-ignore
+          payment_ref: reference.reference,
           email: email,
         },
       ]);
@@ -93,15 +81,21 @@ const PayStackCheckout = ({ amount }: { amount: number }) => {
       alert("Unexpected error occurred. Please try again.");
     }
   };
+  // const onError = (error: any) => {
+  //   console.error("Payment failed:", error);
+  //   alert("Payment failed. Please try again.");
+  // };
 
-  const onError = (error: any) => {
-    console.error("Payment failed:", error);
-    alert("Payment failed. Please try again.");
+  const handlePaystackCloseAction = () => {
+    // implementation for  whatever you want to do when the Paystack dialog closed.
+    console.log("closed");
   };
 
-  const onClose = () => {
-    console.log("Payment process closed");
-    alert("You closed the payment process.");
+  const componentProps = {
+    ...paystackConfig,
+    text: `Pay GHC ${amount} to complete your order`, // Update the text to reflect the amount
+    onSuccess: (reference: callback) => handlePaystackSuccessAction(reference),
+    onClose: handlePaystackCloseAction,
   };
 
   return (
@@ -124,14 +118,18 @@ const PayStackCheckout = ({ amount }: { amount: number }) => {
         onChange={(e) => setEmail(e.target.value)}
       />
       {/* <button onClick={handlePayment}> */}
-      <div>
+      <PaystackButton
+        className="bg-green-500 text-white px-6 py-3 rounded-lg"
+        {...componentProps}
+      />
+      {/* <div>
         <button
-          onClick={() => initializePayment(onSuccess, onError, onClose)}
+          onClick={() => initializePayment(onSuccess, onClose)}
           className="bg-green-500 text-white px-6 py-3 rounded-lg"
         >
           Pay GHC{amount}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
